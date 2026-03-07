@@ -50,6 +50,8 @@ Table A1: R script `Table_A1.r` produces Table A1 in the appendix. This presents
 
 Table A2: R script `Table_A2.r`  produces Table A2 in the appendix, which excludes outliers either with a standardized residual above or below 1.96 or with a Cook's distance above four divided by the number of observations.
 
+Table A3: R script `Table_A3.r` produces Table A3 in the appendix. This modifies the approach in Table 3 by adding a linear country-specific time trend in some specifications and employing a first-differenced specification in others.
+
 
 
 
