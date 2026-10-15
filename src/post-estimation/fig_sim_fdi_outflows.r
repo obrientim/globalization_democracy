@@ -27,46 +27,47 @@ temp <- temp %>%
   ungroup()
 
 
-m2 <- plm(freefair ~ lag_fdi_inflows + lag_fdi_outflows +
+m6 <- plm(equallaw ~ lag_fdi_inflows + lag_fdi_outflows +
             lag_trade + lag_tariff_rate + log(lag_gdppc) +
-            lag_gdp_growth + lag_inflation + lag_freefair + lag2_freefair,
+            lag_gdp_growth + lag_inflation + lag_equallaw + lag2_equallaw,
           data = temp,
           index = c("country", "year"),
           model = "within",
           effect = "twoways")
 
-crse2 <- coeftest(m2, vcovHC(m2, type = "HC1", cluster = "group"))
-crse2
+crse6 <- coeftest(m6, vcovHC(m6, type = "HC1", cluster = "group"))
+crse6
 
 # LONG-RUN EFFECT OF TRADE ON FREE FAIR ===========================
+
 # Within-country annual standard deviation of trade over time
-trade_shock <- temp %>%
+outflows_shock <- temp %>%
   group_by(country) %>%
-  summarise(sd_trade = sd(lag_trade)) %>%
-  summarise(mean_sd = mean(sd_trade)) %>%
+  summarise(sd_outflows = sd(lag_fdi_outflows)) %>%
+  summarise(mean_sd = mean(sd_outflows)) %>%
   pull(mean_sd)
 
-trade_shock
+outflows_shock
 
 # Show effect over 30 years
 time_horizon <- 30
 
-coefs <- coef(m2)[c("lag_trade", "lag_freefair","lag2_freefair")]
-vcm <- vcovHC(m2, type = "HC1", cluster = "group")[c("lag_trade", "lag_freefair","lag2_freefair"),
-                                                 c("lag_trade", "lag_freefair","lag2_freefair")]
+coefs <- coef(m6)[c("lag_fdi_outflows", "lag_equallaw","lag2_equallaw")]
+vcm <- vcovHC(m6, type = "HC1", cluster = "group")[c("lag_fdi_outflows", "lag_equallaw","lag2_equallaw"),
+                                                   c("lag_fdi_outflows", "lag_equallaw","lag2_equallaw")]
 
 # Define function to recursively generate the over-time effects of the shock
 lre <- function(coef) {
-  trade <- coef["lag_trade"]
-  lag1 <- coef["lag_freefair"]
-  lag2 <- coef["lag2_freefair"]
+  outflows <- coef["lag_fdi_outflows"]
+  lag1 <- coef["lag_equallaw"]
+  lag2 <- coef["lag2_equallaw"]
   effect <- numeric(time_horizon)
   y1 <- 0
   y2 <- 0
 
   # Iterate through each time period to calculate the long-run effect
   for (t in seq_len(time_horizon)) {
-    yt <- trade*trade_shock + lag1*y1 + lag2*y2
+    yt <- outflows*outflows_shock + lag1*y1 + lag2*y2
     effect[t] <- yt
     y2 <- y1
     y1 <- yt
@@ -77,6 +78,7 @@ lre <- function(coef) {
 }
 
 ## Bootstrap confidence intervals ----
+
 set.seed(891)
 coef_draws <- mvrnorm(n = 1000, mu = coefs, Sigma = vcm)
 
@@ -93,7 +95,7 @@ df <- data.frame(
   mean_effect = c(0, mean_effect),
   ci_low = c(0, ci_low),
   ci_high = c(0, ci_high)
-  )
+)
 
 rib_data <- data.frame(
   x    = df$year,
@@ -103,14 +105,14 @@ rib_data <- data.frame(
 
 
 ## Plot ----
-figure_4 <- ggplot(df, aes(x = year, y = mean_effect)) +
+figure_5 <- ggplot(df, aes(x = year, y = mean_effect)) +
   geom_line(color = "black", linewidth = 0.5) +
   geom_line(data = rib_data, aes(x = x, y = ymax),
             color = "grey45", linetype = "longdash") +
   geom_line(data = rib_data, aes(x = x, y = ymin),
             color = "grey45", linetype = "longdash") +
-  xlab("Years after annual 1-SD increase in trade openness") +
-  ylab("Change in Free Fair percentage points") +
+  xlab("Years after annual 1-SD increase in FDI outflows") +
+  ylab("Change in Equal Law percentage points") +
   theme_bw() +
   theme(
     panel.border = element_blank(),
@@ -118,7 +120,6 @@ figure_4 <- ggplot(df, aes(x = year, y = mean_effect)) +
     panel.grid.minor.x = element_blank(),
     panel.grid.minor.y = element_blank(),
     panel.grid.major.y = element_line(color = "grey85", linewidth = 0.4),
-
     axis.title.x = element_text(size = 12),
     axis.title.y = element_text(size = 12),
     axis.text.x = element_text(size = 10),
@@ -130,4 +131,5 @@ figure_4 <- ggplot(df, aes(x = year, y = mean_effect)) +
   )
 
 
-ggsave("figure_4.pdf", plot = figure_4, device = cairo_pdf)
+ggsave("exhibits/figures/fig_sim_fdi_outflows.pdf", plot = figure_5, device = cairo_pdf)
+

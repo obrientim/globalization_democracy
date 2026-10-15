@@ -88,4 +88,4 @@ figure_3B <- fig3B_df %>%
       plot.margin       = margin(5.5, 15, 5.5, 5.5)
   )
 
-ggsave("figure_3B.pdf", plot = figure_3B, device = cairo_pdf)
+ggsave("exhibits/figures/fig_coefs_equallaw.pdf", plot = figure_3B, device = cairo_pdf)

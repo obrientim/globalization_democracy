@@ -7,14 +7,14 @@ rm(list = ls())
 library(tidyverse)
 
 # IMPORT DATA ===========================
-wdi <- read.csv("data/wdi.csv", ,stringsAsFactors = F)
+wdi <- read.csv("data/raw/wdi.csv", ,stringsAsFactors = F)
 
 # panel information for WDI
 length(unique(wdi$country))
 min(wdi$year)
 max(wdi$year)
 
-vdem <- read.csv("data/vdem.csv", ,stringsAsFactors = F)
+vdem <- read.csv("data/raw/vdem.csv", ,stringsAsFactors = F)
 # panel information for V-Dem
 length(unique(vdem$country_name))
 min(vdem$year)

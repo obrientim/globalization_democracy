@@ -267,4 +267,4 @@ table_A3 <- stargazer(m52, m53, m54, m55, m56, m57,
             notes.append = FALSE
             )
 
-cat(table_A3, file = "tables/table_A3.tex")
+cat(table_A3, file = "exhibits/tables/tab_trends_first_diff.tex", sep = "\n")

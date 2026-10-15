@@ -365,4 +365,4 @@ table_4 <- stargazer(m13, m14, m15, m16, m17, m18, m19, m20, m21, m22, m23, m24,
                      notes.append = FALSE
 )
 
-cat(table_4, file = "table_4.tex")
+cat(table_4, file = "exhibits/tables/tab_no_econ_controls.tex", sep = "\n")

@@ -225,7 +225,7 @@ m44 <- pgmm(equalaccess ~ lag_fdi_inflows + lag_fdi_outflows +
             transformation = "d",
             collapse = TRUE)
 
-crse44 <- coeftest(m44, vcovHC(m35, type = "HC1", cluster = "group"))
+crse44 <- coeftest(m44, vcovHC(m44, type = "HC1", cluster = "group"))
 crse44
 nobs(m44)
 ar2_m44 <- mtest(m44, order = 2)
@@ -398,4 +398,4 @@ table_A1 <- stargazer(m34, m35, m36, m37, m38, m39, m40, m41, m42, m43, m44, m45
                      notes.append = FALSE
 )
 
-cat(table_A1, file = "table_A1.tex")
+cat(table_A1, file = "exhibits/tables/tab_population_controls.tex", sep = "\n")

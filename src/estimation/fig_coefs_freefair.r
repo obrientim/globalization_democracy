@@ -90,4 +90,4 @@ figure_3A <- fig3A_df %>%
   )
 
 print(figure_3A)
-ggsave("figure_3A.pdf", plot = figure_3A, device = cairo_pdf)
+ggsave("exhibits/figures/fig_coefs_freefair.pdf", plot = figure_3A, device = cairo_pdf)

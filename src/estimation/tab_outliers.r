@@ -214,7 +214,7 @@ lag1_se <- c(
 )
 
 lag2_coef <- c(
-  extract_stars(coef(m46)["lag2_freefair"], m46["lag2_freefair", 4]),
+  extract_stars(coef(m46)["lag2_freefair"], crse46["lag2_freefair", 4]),
   extract_stars(coef(m47)["lag2_freefair"], crse47["lag2_freefair", 4]),
   extract_stars(coef(m48)["lag2_equallaw"], crse48["lag2_equallaw", 4]),
   extract_stars(coef(m49)["lag2_equallaw"], crse49["lag2_equallaw", 4]),
@@ -224,12 +224,12 @@ lag2_coef <- c(
 
 
 lag2_se <- c(
-  extract_ses(crse_resid_m2["lag2_freefair", 2]),
-  extract_ses(crse_m47["lag2_freefair", 2]),
-  extract_ses(crse_m48["lag2_equallaw", 2]),
-  extract_ses(crse_m49["lag2_equallaw", 2]),
-  extract_ses(crse_m50["lag2_equalaccess", 2]),
-  extract_ses(crse_m51["lag2_equalaccess", 2])
+  extract_ses(crse46["lag2_freefair", 2]),
+  extract_ses(crse47["lag2_freefair", 2]),
+  extract_ses(crse48["lag2_equallaw", 2]),
+  extract_ses(crse49["lag2_equallaw", 2]),
+  extract_ses(crse50["lag2_equalaccess", 2]),
+  extract_ses(crse51["lag2_equalaccess", 2])
 )
 
 
@@ -286,6 +286,6 @@ table_A2 <- stargazer(m46, m47, m48, m49, m50, m51,
                       notes.append = FALSE
 )
 
-cat(table_A2, file = "table_A2.tex")
+cat(table_A2, file = "exhibits/tables/tab_outliers.tex", sep = "\n")
 
 

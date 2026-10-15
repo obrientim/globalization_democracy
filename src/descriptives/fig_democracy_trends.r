@@ -64,4 +64,4 @@ figure_2 <- ggplot(avgs, aes(x = year, y = value, linetype = name)) +
     legend.margin = margin(t = -5)
   )
 
-ggsave("figure_2.pdf", plot = figure_2, device = cairo_pdf)
+ggsave("exhibits/figures/fig_democracy_trends.pdf", plot = figure_2, device = cairo_pdf)
