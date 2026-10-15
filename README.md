@@ -1,104 +1,57 @@
-# Does Economic Globalization Promote Democracy?
+This is a repository for the code used to produce all results in my honors BA thesis in political science at the University of Chicago. Those who wish to examine the data cleaning and diagnostics process can start by looking at the `src/data_cleaning` and `src/diagnostics` folders. However, all the results are reproducible individually in each `.r` file using the provided `.csv` file. To reproduce everything at once, run `bash main.sh` from the repository root.
 
-This repository contains the code and data for "Does Economic Globalization Promote Democracy? An Empirical Investigation into the Political Consequences of Economic Integration," my honors BA thesis in political science at the University of Chicago (2025). The paper is forthcoming in the *Berkeley Economic Review* and is available [here](https://obrientim.github.io/papers/economic_globalization_democracy.pdf).
+# Required Packages
+`library(tidyverse)`  
+`library(ggplot2)`  
+`library(plm)`  
+`library(lmtest)`  
+`library(stargazer)`  
+`library(MASS)`  
+`library(sandwich)`  
+`library(knitr)`  
+`library(kableExtra)`  
 
-The paper estimates the effects of foreign direct investment, trade openness, and tariffs on three V-Dem measures of democracy: free and fair elections, equality before the law, and equal access to power. The unit of analysis is the country-year. The main specifications are dynamic two-way fixed effects models and the Arellano-Bond GMM estimator, each with one or two lags of democracy.
+# Required Data
+For my code to execute properly, you must have the data folder in your working directory. If you wish to clean the data yourself, or walk through my process, you will use the provided `data/raw/wdi.csv` and `data/raw/vdem.csv` files to create the dataset `full_panel.csv`. For every other `.r` file, you must load in `full_panel.csv`, a process for which code is always given. 
 
-## Quick start
+The World Bank data is loaded from the `wdi.csv` file and contains World Development Indicators data on foreign direct investment inflows, foreign direct investment outflows, trade openness as a percentage of GDP, weighted mean applied tariff rates, GDP per capita, GDP annual growth rates, inflation rates, population size, and annual population growth rates. The unit of analysis is the country-year. The V-Dem `.csv` file includes the three outcome variables used in my primary analysis--_v2xel_frefair_, _v2xcl_rol_, and _v2xeg_eqaccess_ (which I code as _Free Fair_, _Equal Law_, and _Equal Access_ respectively--as well as the electoral and liberal democracy indices used to produce Figure 2, all presented with the country-year as the unit of analysis. 
 
-From the repository root, run
+# Structure & Process
+All R scripts are inside the `src` folder and are categorized into `data_cleaning`, `diagnostics`, `descriptives`, `estimation`, or `post-estimation`. Tables are saved to `exhibits/tables` and figures to `exhibits/figures`. 
 
-```
-Rscript run.R
-```
+## Data Cleaning & Diagnostics
+To clean the data, examine diagnostics, and test for unit root issues, navigate to the `src/data_cleaning` and `src/diagnostics` folders.
 
-This reproduces every table and figure from `data/full_panel.csv` and writes them to `exhibits/`. To rebuild `full_panel.csv` from the raw data first, run `Rscript run.R --build`. Each script also runs on its own from the repository root, for example after opening `globalization_democracy.Rproj` in RStudio.
+R script `01-data_cleaning.r` will load, clean, and merge the World Bank and V-Dem data into a tidy dataset called `full_panel.csv`, which contains both the World Bank and V-Dem data. Coding mismatches are addressed, and I remove excess columns. Last, I add coding for developmental levels and create lags for all explanatory variables. The final dataframe is exported to `full_panel.csv`.
 
-## Structure
+R script `distributions_unit_roots.r` loads the new `full_panel.csv` file and examines the univariate distributions of the variables to determine possible transformations. Because unit root non-stationarity poses serious threats in panel data settings, I also run diagnostics testing for possible unit root issues. 
 
-```
-run.R                  runs every script in order
-data/
-  raw/                 World Bank and V-Dem extracts
-  full_panel.csv       cleaned country-year panel
-  codebook.md          variables in full_panel.csv
-src/
-  data_cleaning/       builds full_panel.csv from data/raw
-  diagnostics/         variable distributions and panel unit-root tests
-  descriptives/        Figure 2 and Tables 1-2
-  estimation/          Figure 3 and Tables 3, 4, and A1-A3
-  post-estimation/     dynamic simulations in Figures 4-5
-exhibits/
-  tables/              LaTeX tables
-  figures/             PDF figures
-```
+## Tables & Figures
+To simply reproduce the results in my thesis, you need only run the `.r` files in `descriptives`, `estimation`, and `post-estimation`. Figures 1 and 6 were created in LaTeX and are not included here.
 
-## Data
+The figures and tables appear in the paper in the following order:
 
-### V-Dem
+Figure 2: R script `fig_democracy_trends.r` will create a plot of V-Dem's electoral democracy and liberal democracy indices from 2017 to 2024. 
 
-`data/raw/vdem.csv` holds five indices from the Varieties of Democracy (V-Dem) Country-Year dataset, version 15 (https://www.v-dem.net/data/the-v-dem-dataset/).
+Table 1: R script `tab_variable_descriptions.r` creates a table of variable descriptions using the 'stargazer' package
 
-| Name in paper | V-Dem variable | Index |
-|---|---|---|
-| Free Fair | `v2xel_frefair` | Clean elections |
-| Equal Law | `v2xcl_rol` | Equality before the law and individual liberty |
-| Equal Access | `v2xeg_eqaccess` | Equal access |
-| | `v2x_polyarchy` | Electoral democracy (Figure 2) |
-| | `v2x_libdem` | Liberal democracy (Figure 2) |
+Table 2: R script `tab_summary_stats.r` iterates over all variables in my analysis to create descriptive statistics. A table is then made with the 'stargazer' package.
 
-### World Bank
+Figure 3: R scripts `fig_coefs_freefair.r` and `fig_coefs_equallaw.r` produce respective coefficient plots for two outcome variables: _Free Fair_ and _Equal Law_. For each figure, I estimate my preferred model specification with standardized variables. I then plot the coefficients with 95% confidence intervals, with solid points indicating statistical significance at the 5% level. 
 
-`data/raw/wdi.csv` holds country-year series from the World Bank's World Development Indicators (https://databank.worldbank.org/source/world-development-indicators). The World Bank revises these series over time, so a fresh download will differ slightly from this file.
+Table 3: R script `tab_main_results.r` produces a table of the main results for my project. The table presents coefficients, standard errors, and significance levels for the effect of each globalization variable on each dependent variable (multiplied by 100 for presentation). The same statistics are presented for the lagged dependent variables. P-values for tests for serial correlation and the number of observations are included at the bottom of the table. There are a total of 12 models, 6 using two-way fixed effects, and 6 using the Arellano-Bond GMM estimator. Half the models use one lag of democracy, and the other half use two. 
 
-| Variable | WDI code | Series |
-|---|---|---|
-| `fdi_inflows` | `BX.KLT.DINV.WD.GD.ZS` | Foreign direct investment, net inflows (% of GDP) |
-| `fdi_outflows` | `BM.KLT.DINV.WD.GD.ZS` | Foreign direct investment, net outflows (% of GDP) |
-| `trade` | `NE.TRD.GNFS.ZS` | Trade (% of GDP) |
-| `tariff_rate` | `TM.TAX.MRCH.WM.AR.ZS` | Tariff rate, applied, weighted mean, all products (%) |
-| `gdppc` | `NY.GDP.PCAP.PP.KD` | GDP per capita, PPP (constant 2021 international $) |
-| `gdp_growth` | `NY.GDP.PCAP.KD.ZG` | GDP per capita growth (annual %) |
-| `inflation` | `NY.GDP.DEFL.KD.ZG` | Inflation, GDP deflator (annual %) |
-| `pop_size` | `SP.POP.TOTL` | Population, total |
-| `pop_growth` | `SP.POP.GROW` | Population growth (annual %) |
+Figure 4: R script `fig_sim_trade.r` creates a dynamic simulation depicting the effect of a one-time annual 1-standard deviation increase in _Trade_ on _Free Fair_ over 30 years. 95% confidence intervals are constructed via a parametric bootstrap of 1,000 draws from the estimated variance-covariance matrix. 
 
-### Cleaning
+Figure 5: R script `fig_sim_fdi_outflows.r` does the same as `fig_sim_trade.r` but for the effect of _FDI Outflows_ on _Equal Law_.
 
-`src/data_cleaning/01-data_cleaning.r` merges the two files, addresses country-coding mismatches, removes excess columns, codes each country's level of development (LDC, developing, or OECD), and creates one-year lags of the explanatory variables. The result is `data/full_panel.csv`, described in `data/codebook.md`.
+Table 4: R script `tab_no_econ_controls.r` does the same as `tab_main_results.r` but excludes the economic control variables (GDP per capita, GDP growth rate, and inflation) as a robustness check.
 
-`src/diagnostics/distributions_unit_roots.r` examines the distribution of each variable to choose transformations and tests for panel unit roots. It prints to the console, writes no exhibits, and is not part of `run.R`.
+Table A1: R script `tab_population_controls.r` produces Table A1 in the appendix. This presents results for globalization's effect on democracy after including controls for log of population size and the annual growth rate of population size as a robustness check. It contains 12 columns, as in Tables 3 and 4. 
 
-## Exhibits
+Table A2: R script `tab_outliers.r`  produces Table A2 in the appendix, which excludes outliers either with a standardized residual above or below 1.96 or with a Cook's distance above four divided by the number of observations.
 
-Each script writes its output to `exhibits/tables` or `exhibits/figures` under the script's own name. Figures 1 and 6 were made in LaTeX and are not included.
+Table A3: R script `tab_trends_first_diff.r` produces Table A3 in the appendix. This modifies the approach in Table 3 by adding a linear country-specific time trend in some specifications and employing a first-differenced specification in others.
 
-| Exhibit | Script | Contents |
-|---|---|---|
-| Figure 2 | `src/descriptives/fig_democracy_trends.r` | V-Dem electoral and liberal democracy indices, 2017-2024 |
-| Table 1 | `src/descriptives/tab_variable_descriptions.r` | Variable descriptions |
-| Table 2 | `src/descriptives/tab_summary_stats.r` | Descriptive statistics |
-| Figure 3A | `src/estimation/fig_coefs_freefair.r` | Coefficients from the preferred specification for *Free Fair*, standardized, with 95% confidence intervals |
-| Figure 3B | `src/estimation/fig_coefs_equallaw.r` | The same for *Equal Law* |
-| Table 3 | `src/estimation/tab_main_results.r` | Main results: 12 models, two-way fixed effects and Arellano-Bond, each with one or two lags of democracy |
-| Table 4 | `src/estimation/tab_no_econ_controls.r` | Table 3 without the economic controls |
-| Table A1 | `src/estimation/tab_population_controls.r` | Table 3 with controls for log population and population growth |
-| Table A2 | `src/estimation/tab_outliers.r` | Excludes outliers with a standardized residual beyond 1.96 or a Cook's distance above 4/N |
-| Table A3 | `src/estimation/tab_trends_first_diff.r` | Country-specific linear time trends and first-differenced specifications |
-| Figure 4 | `src/post-estimation/fig_sim_trade.r` | Simulated effect of a one-standard-deviation increase in *Trade* on *Free Fair* over 30 years, with 95% intervals from a parametric bootstrap of 1,000 draws |
-| Figure 5 | `src/post-estimation/fig_sim_fdi_outflows.r` | The same for *FDI Outflows* on *Equal Law* |
-
-## Requirements
-
-Tested with R 4.5.1.
-
-```r
-install.packages(c("tidyverse", "plm", "lmtest", "sandwich", "stargazer",
-                   "knitr", "kableExtra", "urca"))
-```
-
-`MASS` ships with R. `urca` is used only by the unit-root tests.
-
-## AI use
-
-In October 2026 I used Claude Code to reorganize this repository, update the file paths in each script, and draft this README. It also fixed two bugs that stopped Tables A1 and A2 from running. Table A1 computed one column's standard errors from the wrong model, and Table A2 referred to standard-error objects by old names. The rest of the analysis code was not changed.
+# AI Use
+In October 2026, I used Claude Code to reorganize this repository, update the file paths and this README to match, and fix two bugs that kept Tables A1 and A2 from running. The rest of the code is unchanged.
